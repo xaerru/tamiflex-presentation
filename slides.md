@@ -463,6 +463,39 @@ But Java Instrumentation cannot capture hidden classes
 <SlideNumber />
 
 ---
+
+# Mechanism to capture Lambdas
+
+##
+Hidden classes are instantiated by `makeHiddenClassDefiner` method in `java.lang.invoke.MethodHandles$Lookup`
+
+The idea is to instrument that method to capture the `byte[]` that represents the class
+<br>
+<br>
+
+<div class="relative w-full h-100">
+
+<v-switch>
+  <template #1>
+    <img src="/lambda1-1.drawio.svg" class="w-full h-full object-contain">
+  </template>
+
+  <template #2>
+    <img src="/lambda1-2.drawio.svg" class="w-full h-full object-contain">
+  </template>
+
+  <template #3>
+    <img src="/lambda1-3.drawio.svg" class="w-full h-full object-contain">
+  </template>
+
+  <template #4>
+    <img src="/lambda1-4.drawio.svg" class="w-full h-full object-contain">
+  </template>
+</v-switch>
+
+</div>
+
+<SlideNumber />
 <!-- mechanism to capture it -->
 <!---->
 <!-- Why capture it? example from paper -->
@@ -470,11 +503,45 @@ But Java Instrumentation cannot capture hidden classes
 
 ---
 
+# Mechanism to capture Lambdas
+
+##
+What about the reflection log?
+
+<br>
+
+<div class="relative w-full h-100">
+
+<v-switch>
+  <template #1>
+    <img src="/lambda2-1.drawio.svg" class="w-full h-full object-contain">
+  </template>
+
+  <template #2>
+    <img src="/lambda2-2.drawio.svg" class="w-full h-full object-contain">
+  </template>
+
+  <template #3>
+    <img src="/lambda2-3.drawio.svg" class="w-full h-full object-contain">
+  </template>
+</v-switch>
+
+</div>
+
+<SlideNumber />
+---
+
+# Non-deterministic bytecode
+
+##
+Some runtime-generated classes have different bytecode on each run
+
+---
+
 
 Challenges and fixes one by one
 
 Evaluation and correctness
-
 
 
 ---
