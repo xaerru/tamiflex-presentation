@@ -260,35 +260,34 @@ flowchart TD
 <img src="/tamiflex_architecture.png" class="w-200 mx-auto"/>
 
 <Arrow
-  v-click="1"
-  v-click-hide="2"
+  v-click="[1, 2]"
   x1="50"
   y1="175"
   x2="115"
   y2="175"
   color="#F97316"
 />
+
 <Arrow
-  v-click="2"
-  v-click-hide="3"
+  v-click="[2, 3]"
   x1="70"
   y1="350"
   x2="137"
   y2="350"
   color="#F97316"
 />
+
 <Arrow
-  v-click="4"
-  v-click-hide="5"
+  v-click="[3, 4]"
   x1="515"
   y1="550"
   x2="515"
   y2="505"
   color="#F97316"
 />
+
 <Arrow
-  v-click="6"
-  v-click-hide="7"
+  v-click="[4, 5]"
   x1="575"
   y1="350"
   x2="645"
