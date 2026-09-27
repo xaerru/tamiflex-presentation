@@ -377,8 +377,96 @@ return cw.toByteArray();
 <SlideNumber />
 
 ---
+layout: two-cols-header
+---
 
 # Lambda Expressions
+
+##
+Allow behavior to be passed as data
+
+::left::
+```java {all|4|3-4|6|all}{at:2}
+class Example {
+    public static void main(String[] args) {
+        Runnable r =
+            () -> System.out.println("Hello");
+
+        r.run();
+    }
+}
+```
+
+Introduced in Java 8
+
+Not considered by TamiFlex
+
+How are lambda expressions compiled?
+
+::right::
+<v-click>
+
+````md magic-move
+
+```java {all|12-17|6|9} {at:2}
+// Compiled from Example.java
+class Example {
+  ...
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokedynamic #7,  0
+       5: astore_1
+       6: aload_1
+       7: invokeinterface #11,  1
+      12: return
+
+  private static void lambda$main$0();
+    Code:
+       0: getstatic     #15
+       3: ldc           #21
+       5: invokevirtual #23
+       8: return
+}
+```
+```java {all|11}
+// Generated at runtime
+final class Example$$Lambda implements java.lang.Runnable {
+  private Example$$Lambda();
+    Code:
+       0: aload_0
+       1: invokespecial #10
+       4: return
+
+  public void run();
+    Code:
+       0: invokestatic  #16  // Method Example.lambda$main$0:()V
+       3: return
+}
+```
+
+````
+
+</v-click>
+
+<v-click>
+This is a runtime generated class, it must be captured
+
+But Java Instrumentation cannot capture hidden classes
+</v-click>
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+<SlideNumber />
+
+---
+<!-- mechanism to capture it -->
+<!---->
+<!-- Why capture it? example from paper -->
+
 
 ---
 
@@ -388,126 +476,6 @@ Challenges and fixes one by one
 Evaluation and correctness
 
 
-
----
-
-# Java Instrumentation
-
-## How TamiFlex Observes Reflection
-
-### Java Agent
-
-- Uses the Java Instrumentation API
-- Rewrites bytecode during class loading
-- Intercepts reflective operations
-
-### ASM
-
-- Bytecode manipulation framework
-- Visitor-based API
-- Allows insertion of logging code
-
-<!-- Optional ASM pipeline figure -->
-
----
-
-# TamiFlex Components
-
-<div class="grid grid-cols-3 gap-6">
-
-<div class="border rounded p-4">
-
-## Play-Out Agent
-
-Runs with the application
-
-Records reflective behavior
-
-</div>
-
-<div class="border rounded p-4">
-
-## Play-In Agent
-
-Uses recorded information
-
-Makes reflective targets explicit
-
-</div>
-
-<div class="border rounded p-4">
-
-## Booster
-
-Transforms bytecode
-
-Improves compatibility with static analysis tools
-
-</div>
-
-</div>
-
----
-
-# Example Workflow
-
-```text
-Application
-      │
-      ▼
- Play-Out Agent
-      │
- Reflection Log
-      │
-      ▼
- Play-In Agent
-      │
-      ▼
- Transformed Program
-      │
-      ▼
- Static Analysis
-```
-
----
-
-# Modernizing TamiFlex
-
-### Original Version
-
-- Java 6 / Java 8 era
-- ASM 3.x
-- DaCapo 9.12-bach
-
-### This Work
-
-- Java 21 support
-- ASM 9.9.1
-- DaCapo 23.11-MR2-chopin
-- Hidden classes
-- Lambda handling
-- Modern JVM compatibility
-
----
-
-# Evaluation
-
-### Questions
-
-1. Does TamiFlex work on modern Java?
-2. Does it work on modern DaCapo benchmarks?
-3. What issues arise on modern JVMs?
-
-<!-- Results table goes here -->
-
----
-
-# Key Takeaways
-
-- Reflection remains challenging for static analysis
-- TamiFlex bridges dynamic and static analysis
-- Significant updates were required for modern Java
-- Updated TamiFlex now supports contemporary JVMs and benchmarks
 
 ---
 
