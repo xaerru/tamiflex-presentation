@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: ./light-blue.jpg
+background: /light-blue.jpg
 title: Modern Java Static Analysis in the Presence of Reflection
 info: |
   IICT 2026
@@ -106,7 +106,7 @@ layout: two-cols-header
 
 # TamiFlex
 
-<img src="./tamiflex_paper.drawio.svg" class="w-200 mx-auto"/>
+<img src="/tamiflex_paper.drawio.svg" class="w-200 mx-auto"/>
 
 <br>
 
@@ -257,7 +257,7 @@ flowchart TD
 
 # TamiFlex Architecture
 
-<img src="./tamiflex_architecture.png" class="w-200 mx-auto"/>
+<img src="/tamiflex_architecture.png" class="w-200 mx-auto"/>
 
 <Arrow
   v-click="1"
