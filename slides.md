@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: light-blue.jpg
+background: ./light-blue.jpg
 title: Modern Java Static Analysis in the Presence of Reflection
 info: |
   IICT 2026
