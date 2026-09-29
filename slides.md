@@ -529,27 +529,298 @@ What about the reflection log?
 </div>
 
 <SlideNumber />
+
+---
+layout: two-cols-header
 ---
 
 # Non-deterministic bytecode
 
 ##
-Some runtime-generated classes have different bytecode on each run
+Sometimes runtime-generated classes might have different bytecode on each run
 
+::left::
+
+### Why?
+
+Proxy classes rely on `Class.getMethods()` to generate classes
+
+This method does not guarantee a deterministic return order
+
+```java
+         Run 1            |           Run 2
+   Class.getMethods()     |     Class.getMethods()
+                          |
+      [ foo() ]           |         [ bar() ]
+      [ bar() ]           |         [ baz() ]
+      [ baz() ]           |         [ foo() ]
+          ↓               |             ↓
+   Generated Class A      |     Generated Class A
+   0: call foo()          |     0: call bar()
+   1: call bar()          |     1: call baz()
+   2: call baz()          |     2: call foo()
+```
+
+::right::
+
+### The Fix
+
+Instrument `Class.getMethods()` to sort the `Method[]` before returning
+
+Algorithm:
+
+```java
+Arrays.sort(methods,
+    Comparator.comparing(
+        m -> m.getName()
+           + descriptor(m)
+           + m.getDeclaringClass().getName()
+));
+```
+
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+---
+layout: two-cols-header
+---
+
+# Non-deterministic bytecode
+
+##
+Sometimes runtime-generated classes might have different bytecode on each run
+
+::left::
+
+### Why?
+
+ByteBuddy - a runtime code generation library
+
+Creates classes with randomized field names
+
+<div class="mt-4.8">
+
+```java
+// Run 1:
+  private static final Method cachedValue$i9OL22LY$09i0gv1;
+
+// Run 2:
+  private static final Method cachedValue$oWiemhl0$09i0gv1;
+```
+
+</div>
+
+<Arrow two-way=true width=1 x1="385" y1="310" x2="385" y2="345" />
+
+::right::
+
+### The Fix
+
+Instrument ByteBuddy's `RandomString` class
+
+Modify it to return a constant string - `"TAMIFLEX"`
+
+```java
+// Run 1:
+  private static final Method cachedValue$TAMIFLEX$09i0gv1;
+
+// Run 2:
+  private static final Method cachedValue$TAMIFLEX$09i0gv1;
+```
+
+<Arrow two-way=true width=1 x1="850" y1="310" x2="850" y2="345" />
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+---
+layout: two-cols-header
+---
+
+# Non-deterministic bytecode
+
+##
+Sometimes runtime-generated classes might have different bytecode on each run
+
+::left::
+
+### Dynamic proxy classes
+
+Generated classes that implement a set of interfaces
+
+May be named: `jdk.proxy2.$Proxy5`
+
+Arrows
+
+Non-deterministic counters
+
+### Fix
+
+Use regex to remove the numbers
+
+Append a hash of the bytecode
+
+New name: `jdk.proxy.$Proxy$HASHED$<hash>`
+
+::right::
+
+### Bytecode variation
+
+Non-determinism in constant pool and field ordering
+
+Both Class.getMethods and the ASM ones are needed. (m1, m2 assignment)
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+---
+layout: two-cols-header
+---
+
+# Classes with identical names
+
+##
+Multiple classes can share a name if loaded by different class loaders
+
+
+::left::
+
+Classes can share a name but contain different bytecode
+
+
+```java
+// ClassLoader 1
+org.example.Helper
+    → m1()
+    → m2()
+
+// ClassLoader 2
+org.example.Helper
+    → m1()
+```
+
+TamiFlex does not distinguish between these
+
+Only the most recent class is considered
+
+This causes conflict in the Play-in agent
+
+
+::right::
+
+<img src="/identical-classname.png" class="w-100 mx-auto"/>
+
+<style>
+.two-cols-header {
+  column-gap: 80px; /* Adjust the gap size as needed */
+}
+</style>
+---
+layout: two-cols-header
+---
+
+# Evaluation
+
+##
+::left::
+On DaCapo 23.11-MR2-chopin benchmark suite
+
+Java 21: OpenJDK & OpenJ9
+
+Static analyzer: Soot
+
+
+### Methodology
+
+For all 22 benchmarks:
+
+1. Generate reflection log + class dump (Play-out)
+2. Build call graph with Soot
+3. Re-insert dumped classes (Play-in)
+
+::right::
+
+<img src="/tamiflex-plot1.png"
+     class="w-100 mx-auto"
+     style="transform: scale(1.3);"/>
+
+---
+layout: two-cols-header
+---
+
+# Callgraph Correctness
+
+##
+::left::
+
+Compared Soot-generated call graphs with dynamic call graphs
+
+Ideally no dynamic call graph edge must be missed by the static call graph
+
+But some edges can be missed, they are not relevant
+
+- Related to JVM mechanisms (`loadClass`)
+- Reflective method edges
+- Many more
+
+Even after removing these, some edges are still missing
+
+Can be used to improve the callgraph algorithms
+
+::right::
+
+<img src="/correctness.png"
+     class="w-100 mx-auto"
+     style="transform: scale(1.1);"/>
+
+<style>
+.two-cols-header {
+  column-gap: 30px; /* Adjust the gap size as needed */
+}
+</style>
+
+---
+layout: two-cols-header
 ---
 
 
-Challenges and fixes one by one
+# Improvements in Static Analysis
 
-Evaluation and correctness
+##
+Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiFlex
+
+<!-- Compare Original TamiFlex+Soot (Base) with Updated TamiFlex+Soot (Newly enabled) on DaCapo 23.11-MR1-chopin -->
+::left::
+<img src="/stack-allocation1.png"
+     class="w-100 mx-auto"
+     style="transform: translateY(-20px);"/>
+
+::right::
+<img src="/stack-allocation2.png"
+     class="w-100 mx-auto"
+     style="transform: scale(1.0);transform: translateY(-20px);"/>
 
 
 ---
 
-# Thank You
+# Publication
 
-Questions?
+<img src="/vmil_paper.drawio.svg" class="w-150 mx-auto"/>
+<br>
 
-### Contact
+# Conclusion
+## Brings reflection-aware static analysis to the modern Java ecosystem
 
-Gauravsingh Sisodia
+<br>
+
+# Thank you
