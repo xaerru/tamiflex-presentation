@@ -10,7 +10,7 @@ drawings:
   persist: false
 transition: slide-left
 comark: true
-duration: 20min
+duration: 15min
 ---
 
 # Modern Java Static Analysis in the Presence of Reflection
@@ -22,7 +22,7 @@ duration: 20min
 <br>
 <br>
 
-IICT 2026
+IICT
 
 2 October 2026
 
@@ -38,16 +38,16 @@ layout: two-cols-header
 
 ##
 
-Reflection allows programs to inspect and modify behavior at runtime.
+Reflection allows programs to inspect and interact with program structure at runtime
 
 ::left::
 
 <v-click>
 
-```java {all|1|3|4|6-7|all}
+```java {all|1-2|4|6-7|all}
 String cls = args[0];
-
 Class<?> c = Class.forName(cls);
+
 Object obj = c.getDeclaredConstructor().newInstance();
 
 Method m = c.getMethod("run");
@@ -61,7 +61,7 @@ How would a static analysis determine:
 - Which class is loaded?
 - Which method is invoked?
 
-At compile time the callgraph is incomplete
+At compile time the call graph is incomplete
 
 </v-click>
 
@@ -69,13 +69,14 @@ At compile time the callgraph is incomplete
 
 <v-click>
 
-```java {all|1|3,9-13|6-7|all}
+```java {all|1|3,9-13|5-6|8|all}
 Connection c = new Connection();
 
 Class<?> clazz = Generator.makeClass(); // → Foo$42
-Method m = clazz.getMethod("foo", Connection.class);
 
+Method m = clazz.getMethod("foo", Connection.class);
 m.invoke(null, c); // → Foo$42.foo(c)
+
 c.write("risky call");
 
 class Foo$42 {
@@ -86,8 +87,6 @@ class Foo$42 {
 ```
 
 How would a static analysis access the runtime-generated class?
-
-<!-- The target class and its bytecode are generated at runtime, so they may not even be present in the static analysis input. -->
 
 </v-click>
 
@@ -113,11 +112,14 @@ layout: two-cols-header
 ::right::
 <v-click>
 
+### Approach
+
 - Records reflective calls and their targets
-- During various executions of the program
-- Creates a reflection log
-- Log can be used by the static analysis
-- Only sound with respect to recorded runs
+- Across multiple program executions
+- Produces a reflection log
+- Uses the log to guide static analysis
+
+Sound only with respect to recorded executions!
 
 
 </v-click>
@@ -156,9 +158,10 @@ layout: two-cols-header
 ::right::
 <v-click>
 
-- Capture every class loaded by the program at runtime
-- Store it on disk
-- Give to static analyzer
+### Approach
+- Capture every class loaded by the program
+- Across multiple executions
+- Store them on disk
 
 </v-click>
 
@@ -204,7 +207,7 @@ Intercept and modify bytecode as classes are loaded into the JVM
 
 ### Java Agent
 
-- JAR file with a premain method
+- JAR file with a `premain` method
 
 ```bash
 java -javaagent:agent.jar -jar application.jar
@@ -305,19 +308,32 @@ image: ./light-blue.jpg
 
 # TamiFlex Limitations
 
+<v-click>
+
 ## Challenges
 
 - Designed for Java 6/8-era applications
 - Supports DaCapo 9.12-bach, but not DaCapo 23.11-MR2-chopin
 - Breaks on Java 21 and recent JVMs
 
+
+</v-click>
+
+<v-click>
+
 ## Impact
 
 - Static analysis research remains tied to old benchmarks
 
+</v-click>
+
+<v-click>
+
 ## Our Contribution
 
 - Modernized TamiFlex for Java 21+
+
+</v-click>
 
 <SlideNumber />
 
@@ -329,7 +345,7 @@ layout: two-cols-header
 
 ## ASM - Bytecode manipulation and analysis framework
 
-Used for modifying bytecode in transform()
+Used for modifying bytecode in `transform()`
 
 Provides APIs to parse class files and insert instructions
 
@@ -386,7 +402,7 @@ layout: two-cols-header
 Allow behavior to be passed as data
 
 ::left::
-```java {all|4|3-4|6|all}{at:2}
+```java {all|4|3-4|6|all}{at:3}
 class Example {
     public static void main(String[] args) {
         Runnable r =
@@ -397,18 +413,20 @@ class Example {
 }
 ```
 
+<v-click>
 Introduced in Java 8
 
-Not considered by TamiFlex
+How are they compiled?
 
-How are lambda expressions compiled?
+
+</v-click>
 
 ::right::
 <v-click>
 
 ````md magic-move
 
-```java {all|12-17|6|9} {at:2}
+```java {all|12-17|6|9} {at:3}
 // Compiled from Example.java
 class Example {
   ...
@@ -725,6 +743,8 @@ This causes conflict in the Play-in agent
   column-gap: 80px; /* Adjust the gap size as needed */
 }
 </style>
+
+<SlideNumber />
 ---
 layout: two-cols-header
 ---
