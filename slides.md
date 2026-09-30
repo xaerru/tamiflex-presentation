@@ -1,6 +1,5 @@
 ---
 theme: seriph
-background: /light-blue.jpg
 title: Modern Java Static Analysis in the Presence of Reflection
 info: |
   IICT 2026
@@ -11,17 +10,23 @@ drawings:
 transition: slide-left
 comark: true
 duration: 15min
+layout: default
 ---
 
-# Modern Java Static Analysis in the Presence of Reflection
+<h1 style="font-size: 3.5rem; line-height: 1.1;">
+  Modern Java Static Analysis in the Presence of Reflection
+</h1>
 
 <br>
 
-### Gauravsingh Sisodia and Manas Thakur
-
-<br>
+**Gauravsingh Sisodia**¹, Poorna Teja Pasala², Aditya Anand², and **Manas Thakur**²
 <br>
 
+¹ Sardar Patel Institute of Technology  
+² Indian Institute of Technology Bombay
+
+
+<img src="/iict-logo.png" class="w-30 mx-auto"/>
 IICT
 
 2 October 2026
@@ -271,9 +276,6 @@ flowchart TD
 
 <SlideNumber />
 
----
-layout: image-right
-image: ./light-blue.jpg
 ---
 
 # TamiFlex Limitations
@@ -705,46 +707,16 @@ Sometimes runtime-generated classes might have different bytecode on each run
 
 ### Dynamic proxy classes
 
-Generated at runtime for a set of interfaces
+- Generated at runtime for a set of interfaces
 
-Names include two non-deterministic counters
-
-Example: `jdk.proxy2.$Proxy5`
-
-Hinder convergence
-
-</v-click>
-
-<v-click>
-
-### Fix
-
-Normalize proxy class names
-
-Removing the counters
-
-Appending a hash of the bytecode
-
-New name: `jdk.proxy.$Proxy$HASHED$<hash>`
-
-</v-click>
-
-::right::
-
-<v-click>
-
-### Bytecode variation
-
-Non-determinism in constant pool and member ordering
+- Non-determinism in constant pool and member ordering
 
 ```java
-Run 1:
-    ConstantPool [A, B, C]
-    Methods [foo, bar]
+Run 1:    ConstantPool [A, B, C]
+          Methods [foo, bar]
 
-Run 2:
-    ConstantPool [B, A, C]
-    Methods [bar, foo]
+Run 2:    ConstantPool [B, A, C]
+          Methods [bar, foo]
 ```
 
 <br>
@@ -762,6 +734,42 @@ Sort class members into a deterministic order
 
 </v-click>
 
+<v-click>
+
+### Fix
+
+Normalize the constant pool using ASM
+
+Sort class members into a deterministic order
+
+</v-click>
+
+::right::
+
+<v-click>
+
+### Unstable naming
+- Names include two non-deterministic counters
+
+- Example: `jdk.proxy2.$Proxy5`
+
+- Hinder convergence
+
+</v-click>
+
+<v-click>
+
+### Fix
+
+- Normalize proxy class names
+
+- Removing the counters
+
+- Appending a hash of the bytecode
+
+- New name: `jdk.proxy.$Proxy$HASHED$<hash>`
+</v-click>
+
 <style>
 .two-cols-header {
   column-gap: 20px; /* Adjust the gap size as needed */
@@ -770,9 +778,6 @@ Sort class members into a deterministic order
 
 <SlideNumber />
 
----
-layout: image-right
-image: /light-blue.jpg
 ---
 
 # Additional Contributions
@@ -907,10 +912,10 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 
 # Upstreaming
 
-## We are in the process of merging our pull request into TamiFlex
+- We are in the process of merging our pull request into TamiFlex
 <br>
 
-## The original authors welcomed our contributions and plan to include them in a future release
+- TamiFlex authors (Bodden et al.) welcomed our contributions and plan to include them in a future release
 
 
 </v-click>
