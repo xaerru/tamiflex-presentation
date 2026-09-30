@@ -335,60 +335,60 @@ image: ./light-blue.jpg
 
 <SlideNumber />
 
----
-layout: two-cols-header
----
-
-# Updating ASM
-
-## ASM - Bytecode manipulation and analysis framework
-
-Used for modifying bytecode in `transform()`
-
-Provides APIs to parse class files and insert instructions
-
-<br>
-
-::left::
-
-<v-click>
-
-### What changed?
-
-- TamiFlex used ASM 3.2 (Java 7)
-
-- Updated ASM to 9.9.1 (Java 26)
-
-- Migrated from deprecated `ClassAdapter` and `MethodAdapter` to `ClassVisitor` and `MethodVisitor`
-
-
-</v-click>
-
-::right::
-
-<v-click>
-
-### Example usage:
-
-```java
-ClassReader cr = new ClassReader(bytes);
-ClassWriter cw = new ClassWriter(cr, 0);
-
-cr.accept(new MyClassVisitor(cw), 0);
-
-return cw.toByteArray();
-```
-
-
-</v-click>
-
-<style>
-.two-cols-header {
-  column-gap: 20px; /* Adjust the gap size as needed */
-}
-</style>
-
-<SlideNumber />
+<!-- --- -->
+<!-- layout: two-cols-header -->
+<!-- --- -->
+<!---->
+<!-- # Updating ASM -->
+<!---->
+<!-- ## ASM - Bytecode manipulation and analysis framework -->
+<!---->
+<!-- Used for modifying bytecode in `transform()` -->
+<!---->
+<!-- Provides APIs to parse class files and insert instructions -->
+<!---->
+<!-- <br> -->
+<!---->
+<!-- ::left:: -->
+<!---->
+<!-- <v-click> -->
+<!---->
+<!-- ### What changed? -->
+<!---->
+<!-- - TamiFlex used ASM 3.2 (Java 7) -->
+<!---->
+<!-- - Updated ASM to 9.9.1 (Java 26) -->
+<!---->
+<!-- - Migrated from deprecated `ClassAdapter` and `MethodAdapter` to `ClassVisitor` and `MethodVisitor` -->
+<!---->
+<!---->
+<!-- </v-click> -->
+<!---->
+<!-- ::right:: -->
+<!---->
+<!-- <v-click> -->
+<!---->
+<!-- ### Example usage: -->
+<!---->
+<!-- ```java -->
+<!-- ClassReader cr = new ClassReader(bytes); -->
+<!-- ClassWriter cw = new ClassWriter(cr, 0); -->
+<!---->
+<!-- cr.accept(new MyClassVisitor(cw), 0); -->
+<!---->
+<!-- return cw.toByteArray(); -->
+<!-- ``` -->
+<!---->
+<!---->
+<!-- </v-click> -->
+<!---->
+<!-- <style> -->
+<!-- .two-cols-header { -->
+<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
+<!-- } -->
+<!-- </style> -->
+<!---->
+<!-- <SlideNumber /> -->
 
 ---
 layout: two-cols-header
@@ -546,6 +546,116 @@ What about the reflection log?
 
 <SlideNumber />
 
+<!-- --- -->
+<!-- layout: two-cols-header -->
+<!-- --- -->
+<!---->
+<!-- # Non-deterministic bytecode -->
+<!---->
+<!-- ## -->
+<!-- Sometimes runtime-generated classes might have different bytecode on each run -->
+<!---->
+<!-- ::left:: -->
+<!---->
+<!-- ### Why? -->
+<!---->
+<!-- Proxy classes rely on `Class.getMethods()` to generate classes -->
+<!---->
+<!-- This method does not guarantee a deterministic return order -->
+<!---->
+<!-- ```java -->
+<!--          Run 1            |           Run 2 -->
+<!--    Class.getMethods()     |     Class.getMethods() -->
+<!--                           | -->
+<!--       [ foo() ]           |         [ bar() ] -->
+<!--       [ bar() ]           |         [ baz() ] -->
+<!--       [ baz() ]           |         [ foo() ] -->
+<!--           ↓               |             ↓ -->
+<!--    Generated Class A      |     Generated Class A -->
+<!--    0: call foo()          |     0: call bar() -->
+<!--    1: call bar()          |     1: call baz() -->
+<!--    2: call baz()          |     2: call foo() -->
+<!-- ``` -->
+<!---->
+<!-- ::right:: -->
+<!---->
+<!-- ### The Fix -->
+<!---->
+<!-- Instrument `Class.getMethods()` to sort the `Method[]` before returning -->
+<!---->
+<!-- Algorithm: -->
+<!---->
+<!-- ```java -->
+<!-- Arrays.sort(methods, -->
+<!--     Comparator.comparing( -->
+<!--         m -> m.getName() -->
+<!--            + descriptor(m) -->
+<!--            + m.getDeclaringClass().getName() -->
+<!-- )); -->
+<!-- ``` -->
+<!---->
+<!---->
+<!-- <style> -->
+<!-- .two-cols-header { -->
+<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
+<!-- } -->
+<!-- </style> -->
+<!---->
+<!-- --- -->
+<!-- layout: two-cols-header -->
+<!-- --- -->
+<!---->
+<!-- # Non-deterministic bytecode -->
+<!---->
+<!-- ## -->
+<!-- Sometimes runtime-generated classes might have different bytecode on each run -->
+<!---->
+<!-- ::left:: -->
+<!---->
+<!-- ### Why? -->
+<!---->
+<!-- ByteBuddy - a runtime code generation library -->
+<!---->
+<!-- Creates classes with randomized field names -->
+<!---->
+<!-- <div class="mt-4.8"> -->
+<!---->
+<!-- ```java -->
+<!-- // Run 1: -->
+<!--   private static final Method cachedValue$i9OL22LY$09i0gv1; -->
+<!---->
+<!-- // Run 2: -->
+<!--   private static final Method cachedValue$oWiemhl0$09i0gv1; -->
+<!-- ``` -->
+<!---->
+<!-- </div> -->
+<!---->
+<!-- <Arrow two-way=true width=1 x1="385" y1="310" x2="385" y2="345" /> -->
+<!---->
+<!-- ::right:: -->
+<!---->
+<!-- ### The Fix -->
+<!---->
+<!-- Instrument ByteBuddy's `RandomString` class -->
+<!---->
+<!-- Modify it to return a constant string - `"TAMIFLEX"` -->
+<!---->
+<!-- ```java -->
+<!-- // Run 1: -->
+<!--   private static final Method cachedValue$TAMIFLEX$09i0gv1; -->
+<!---->
+<!-- // Run 2: -->
+<!--   private static final Method cachedValue$TAMIFLEX$09i0gv1; -->
+<!-- ``` -->
+<!---->
+<!-- <Arrow two-way=true width=1 x1="850" y1="310" x2="850" y2="345" /> -->
+<!---->
+<!-- <style> -->
+<!-- .two-cols-header { -->
+<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
+<!-- } -->
+<!-- </style> -->
+
 ---
 layout: two-cols-header
 ---
@@ -557,147 +667,74 @@ Sometimes runtime-generated classes might have different bytecode on each run
 
 ::left::
 
-### Why?
-
-Proxy classes rely on `Class.getMethods()` to generate classes
-
-This method does not guarantee a deterministic return order
-
-```java
-         Run 1            |           Run 2
-   Class.getMethods()     |     Class.getMethods()
-                          |
-      [ foo() ]           |         [ bar() ]
-      [ bar() ]           |         [ baz() ]
-      [ baz() ]           |         [ foo() ]
-          ↓               |             ↓
-   Generated Class A      |     Generated Class A
-   0: call foo()          |     0: call bar()
-   1: call bar()          |     1: call baz()
-   2: call baz()          |     2: call foo()
-```
-
-::right::
-
-### The Fix
-
-Instrument `Class.getMethods()` to sort the `Method[]` before returning
-
-Algorithm:
-
-```java
-Arrays.sort(methods,
-    Comparator.comparing(
-        m -> m.getName()
-           + descriptor(m)
-           + m.getDeclaringClass().getName()
-));
-```
-
-
-<style>
-.two-cols-header {
-  column-gap: 20px; /* Adjust the gap size as needed */
-}
-</style>
-
----
-layout: two-cols-header
----
-
-# Non-deterministic bytecode
-
-##
-Sometimes runtime-generated classes might have different bytecode on each run
-
-::left::
-
-### Why?
-
-ByteBuddy - a runtime code generation library
-
-Creates classes with randomized field names
-
-<div class="mt-4.8">
-
-```java
-// Run 1:
-  private static final Method cachedValue$i9OL22LY$09i0gv1;
-
-// Run 2:
-  private static final Method cachedValue$oWiemhl0$09i0gv1;
-```
-
-</div>
-
-<Arrow two-way=true width=1 x1="385" y1="310" x2="385" y2="345" />
-
-::right::
-
-### The Fix
-
-Instrument ByteBuddy's `RandomString` class
-
-Modify it to return a constant string - `"TAMIFLEX"`
-
-```java
-// Run 1:
-  private static final Method cachedValue$TAMIFLEX$09i0gv1;
-
-// Run 2:
-  private static final Method cachedValue$TAMIFLEX$09i0gv1;
-```
-
-<Arrow two-way=true width=1 x1="850" y1="310" x2="850" y2="345" />
-
-<style>
-.two-cols-header {
-  column-gap: 20px; /* Adjust the gap size as needed */
-}
-</style>
-
----
-layout: two-cols-header
----
-
-# Non-deterministic bytecode
-
-##
-Sometimes runtime-generated classes might have different bytecode on each run
-
-::left::
+<v-click>
 
 ### Dynamic proxy classes
 
-Generated classes that implement a set of interfaces
+Generated at runtime for a set of interfaces
 
-May be named: `jdk.proxy2.$Proxy5`
+Names include two non-deterministic counters
 
-Arrows
+Example: `jdk.proxy2.$Proxy5`
 
-Non-deterministic counters
+Hinder convergence
+
+</v-click>
+
+<v-click>
 
 ### Fix
 
-Use regex to remove the numbers
+Normalize proxy class names
 
-Append a hash of the bytecode
+Removing the counters
+
+Appending a hash of the bytecode
 
 New name: `jdk.proxy.$Proxy$HASHED$<hash>`
 
+</v-click>
+
 ::right::
+
+<v-click>
 
 ### Bytecode variation
 
-Non-determinism in constant pool and field ordering
+Non-determinism in constant pool and member ordering
 
-Both Class.getMethods and the ASM ones are needed. (m1, m2 assignment)
+```java
+Run 1:
+    ConstantPool [A, B, C]
+    Methods [foo, bar]
+
+Run 2:
+    ConstantPool [B, A, C]
+    Methods [bar, foo]
+```
+
+<br>
+
+
+</v-click>
+
+<v-click>
+
+### Fix
+
+Normalize the constant pool using ASM
+
+Sort class members into a deterministic order
+
+</v-click>
 
 <style>
 .two-cols-header {
   column-gap: 20px; /* Adjust the gap size as needed */
 }
 </style>
+
+<SlideNumber />
 
 ---
 layout: two-cols-header
