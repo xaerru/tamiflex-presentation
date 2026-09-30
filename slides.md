@@ -107,10 +107,12 @@ layout: two-cols-header
 
 <br>
 
-::right::
+
+::left::
+
 <v-click>
 
-### Approach
+### Which method is called?
 
 - Records reflective calls and their targets
 - Across multiple program executions
@@ -119,69 +121,19 @@ layout: two-cols-header
 
 Sound only with respect to recorded executions!
 
-
 </v-click>
-
-::left::
-
-<v-click>
-
-### Which method is invoked?
-
-```java
-String cls = args[0];
-
-Class<?> c = Class.forName(cls);
-Object obj = c.getDeclaredConstructor().newInstance();
-
-Method m = c.getMethod("run");
-m.invoke(obj);
-```
-
-</v-click>
-<SlideNumber />
-
-<style>
-.two-cols-header {
-  column-gap: 20px; /* Adjust the gap size as needed */
-}
-</style>
-
----
-layout: two-cols-header
----
-
-# TamiFlex
 
 ::right::
 <v-click>
 
-### Approach
+### How to access the generated class?
 - Capture every class loaded by the program
-- Across multiple executions
-- Store them on disk
+- Across multiple program executions
+- Write them to disk
+
+How to capture?
 
 </v-click>
-
-::left::
-
-### How to access the runtime generated class?
-
-```java
-Connection c = new Connection();
-
-Class<?> clazz = Generator.makeClass(); // → Foo$42
-Method m = clazz.getMethod("foo", Connection.class);
-
-m.invoke(null, c); // → Foo$42.foo(c)
-c.write("risky call");
-
-class Foo$42 {
-    public static void foo(Connection c) {
-        c.close();
-    }
-}
-```
 <SlideNumber />
 
 <style>
@@ -189,6 +141,49 @@ class Foo$42 {
   column-gap: 20px; /* Adjust the gap size as needed */
 }
 </style>
+
+<!-- --- -->
+<!-- layout: two-cols-header -->
+<!-- --- -->
+<!---->
+<!-- # TamiFlex -->
+<!---->
+<!-- ::right:: -->
+<!-- <v-click> -->
+<!---->
+<!-- ### Approach -->
+<!-- - Capture every class loaded by the program -->
+<!-- - Across multiple executions -->
+<!-- - Store them on disk -->
+<!---->
+<!-- </v-click> -->
+<!---->
+<!-- ::left:: -->
+<!---->
+<!-- ### How to access the runtime generated class? -->
+<!---->
+<!-- ```java -->
+<!-- Connection c = new Connection(); -->
+<!---->
+<!-- Class<?> clazz = Generator.makeClass(); // → Foo$42 -->
+<!-- Method m = clazz.getMethod("foo", Connection.class); -->
+<!---->
+<!-- m.invoke(null, c); // → Foo$42.foo(c) -->
+<!-- c.write("risky call"); -->
+<!---->
+<!-- class Foo$42 { -->
+<!--     public static void foo(Connection c) { -->
+<!--         c.close(); -->
+<!--     } -->
+<!-- } -->
+<!-- ``` -->
+<!-- <SlideNumber /> -->
+<!---->
+<!-- <style> -->
+<!-- .two-cols-header { -->
+<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
+<!-- } -->
+<!-- </style> -->
 
 ---
 layout: two-cols-header
@@ -799,13 +794,17 @@ Sort class members into a deterministic order
 <SlideNumber />
 
 ---
-layout: two-cols-header
+layout: image-right
+image: /light-blue.jpg
 ---
 
-# Classes with identical names
+# Additional Contributions
 
 ##
-Multiple classes can share a name if loaded by different class loaders
+- Updated ASM version for compatibility till Java 26
+- Scoped class dump directory with class loader name
+- Added support for resolving default interface methods
+- OpenJDK specific fixes
 
 
 ::left::
@@ -900,52 +899,6 @@ For all 22 benchmarks:
 layout: two-cols-header
 ---
 
-# Call graph Correctness
-
-##
-::left::
-
-<v-click>
-Compared Soot-generated call graphs with dynamic call graphs
-
-Ideally, every dynamic call graph edge should also appear in the static call graph
-
-</v-click>
-
-<v-click>
-Some missing edges are expected and not relevant to this evaluation:
-
-- Related to JVM mechanisms (`loadClass`)
-- Reflective method edges
-- And more
-
-</v-click>
-
-<v-click>
-<br>
-After excluding these cases, some edges are still missing
-
-Potential opportunities to improve call graph algorithms
-</v-click>
-
-::right::
-
-<img v-click src="/correctness.png"
-     class="w-100 mx-auto"
-     style="transform: scale(1.1);"/>
-
-<style>
-.two-cols-header {
-  column-gap: 30px; /* Adjust the gap size as needed */
-}
-</style>
-
-<SlideNumber />
-
----
-layout: two-cols-header
----
-
 
 # Improvements in Static Analysis
 
@@ -1014,3 +967,50 @@ layout: two-cols-header
 <img src="/iitb_logo.png" class="w-50 mx-auto" />
 
 <br>
+
+---
+layout: two-cols-header
+---
+
+# Call graph Correctness
+
+##
+::left::
+
+<v-click>
+Compared Soot-generated call graphs with dynamic call graphs
+
+Ideally, every dynamic call graph edge should also appear in the static call graph
+
+</v-click>
+
+<v-click>
+Some missing edges are expected and not relevant to this evaluation:
+
+- Related to JVM mechanisms (`loadClass`)
+- Reflective method edges
+- And more
+
+</v-click>
+
+<v-click>
+<br>
+After excluding these cases, some edges are still missing
+
+Potential opportunities to improve call graph algorithms
+</v-click>
+
+::right::
+
+<img v-click src="/correctness.png"
+     class="w-100 mx-auto"
+     style="transform: scale(1.1);"/>
+
+<style>
+.two-cols-header {
+  column-gap: 30px; /* Adjust the gap size as needed */
+}
+</style>
+
+<SlideNumber />
+
