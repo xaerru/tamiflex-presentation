@@ -28,8 +28,6 @@ IICT
 
 Indian Institute of Science (IISc), Bengaluru
 
-<SlideNumber />
-
 ---
 layout: two-cols-header
 ---
@@ -61,7 +59,7 @@ How would a static analysis determine:
 - Which class is loaded?
 - Which method is invoked?
 
-At compile time the call graph is incomplete
+The call graph is incomplete at compile time
 
 </v-click>
 
@@ -130,7 +128,7 @@ Sound only with respect to recorded executions!
 
 ### Which method is invoked?
 
-```java {6-7}
+```java
 String cls = args[0];
 
 Class<?> c = Class.forName(cls);
@@ -169,7 +167,7 @@ layout: two-cols-header
 
 ### How to access the runtime generated class?
 
-```java {3,9-13}
+```java
 Connection c = new Connection();
 
 Class<?> clazz = Generator.makeClass(); // → Foo$42
@@ -797,11 +795,13 @@ For all 22 benchmarks:
 }
 </style>
 
+<SlideNumber />
+
 ---
 layout: two-cols-header
 ---
 
-# Callgraph Correctness
+# Call graph Correctness
 
 ##
 ::left::
@@ -841,6 +841,8 @@ Potential opportunities to improve call graph algorithms
 }
 </style>
 
+<SlideNumber />
+
 ---
 layout: two-cols-header
 ---
@@ -863,6 +865,8 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
      style="transform: scale(1.0);transform: translateY(-20px);"/>
 
 
+<SlideNumber />
+
 ---
 
 # Publication
@@ -877,12 +881,14 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 
 ## The original authors welcomed our contributions and plan to include them in a future release
 
+<SlideNumber />
+
 ---
 layout: two-cols-header
 ---
 
 # Conclusion
-## Brings reflection-aware static analysis to the modern Java ecosystem
+## Our work revives reflection-aware static analysis for modern Java
 
 <br>
 
