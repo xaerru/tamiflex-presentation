@@ -400,7 +400,11 @@ layout: two-cols-header
 Allow behavior to be passed as data
 
 ::left::
-```java {all|4|3-4|6|all}{at:3}
+
+
+<div v-show="$clicks < 9">
+
+```java {all|4|3-4|all|all|all|6|hide}{at:3}
 class Example {
     public static void main(String[] args) {
         Runnable r =
@@ -409,7 +413,27 @@ class Example {
         r.run();
     }
 }
+
 ```
+
+</div>
+
+<div v-show="$clicks >= 9">
+
+```java {6-7}
+class Example {
+    public static void main(String[] args) {
+        Runnable r =
+            () -> System.out.println("Hello");
+
+        Class<?> cls = r.getClass();
+        cls.getMethod("run").invoke(r);
+    }
+}
+```
+
+</div>
+
 
 <v-click>
 Introduced in Java 8
@@ -424,7 +448,7 @@ How are they compiled?
 
 ````md magic-move
 
-```java {all|12-17|6|9} {at:3}
+```java {all|12-17|6} {at:3}
 // Compiled from Example.java
 class Example {
   ...
@@ -444,7 +468,7 @@ class Example {
        8: return
 }
 ```
-```java {all|11}
+```java {all|11} {at:3}
 // Generated at runtime
 final class Example$$Lambda implements java.lang.Runnable {
   private Example$$Lambda();
@@ -459,15 +483,53 @@ final class Example$$Lambda implements java.lang.Runnable {
        3: return
 }
 ```
+```java {all|9} {at:3}
+// Compiled from Example.java
+class Example {
+  ...
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokedynamic #7,  0
+       5: astore_1
+       6: aload_1
+       7: invokeinterface #11,  1
+      12: return
+
+  private static void lambda$main$0();
+    Code:
+       0: getstatic     #15
+       3: ldc           #21
+       5: invokevirtual #23
+       8: return
+}
+```
+```java {8} {at:3}
+// Compiled from Example.java
+class Example {
+  ...
+  public static void main(java.lang.String[]);
+    Code:
+       0: invokedynamic #7,  0
+      ...
+      28: invokevirtual #24 // Method.invoke()
+      31: pop
+      32: return
+
+  private static void lambda$main$0();
+    Code:
+       0: getstatic     #15
+       3: ldc           #21
+       5: invokevirtual #23
+       8: return
+}
+```
 
 ````
 
 </v-click>
 
 <v-click>
-This is a runtime generated class, it must be captured
-
-But Java Instrumentation cannot capture hidden classes
+But Java Instrumentation cannot capture these lambda classes
 </v-click>
 
 <style>
@@ -911,6 +973,8 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 <img src="/vmil_paper.drawio.svg" class="w-150 mx-auto"/>
 <br>
 
+<v-click>
+
 # Upstreaming
 
 ## We are in the process of merging our pull request into TamiFlex
@@ -918,6 +982,8 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 
 ## The original authors welcomed our contributions and plan to include them in a future release
 
+
+</v-click>
 <SlideNumber />
 
 ---
