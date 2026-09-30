@@ -728,19 +728,9 @@ Run 2:    ConstantPool [B, A, C]
 
 ### Fix
 
-Normalize the constant pool using ASM
+- Normalize the constant pool using ASM
 
-Sort class members into a deterministic order
-
-</v-click>
-
-<v-click>
-
-### Fix
-
-Normalize the constant pool using ASM
-
-Sort class members into a deterministic order
+- Sort class members into a deterministic order
 
 </v-click>
 
