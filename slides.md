@@ -220,7 +220,7 @@ java -javaagent:agent.jar -jar application.jar
 
 - Register class file transformers in premain
 
-```java {all|8,10}
+```java {all|8,10|all}
 class Transformer implements ClassFileTransformer {
 
     public byte[] transform(
@@ -713,6 +713,7 @@ Multiple classes can share a name if loaded by different class loaders
 
 ::left::
 
+<v-click>
 Classes can share a name but contain different bytecode
 
 
@@ -727,16 +728,20 @@ org.example.Helper
     → m1()
 ```
 
-TamiFlex does not distinguish between these
+</v-click>
 
-Only the most recent class is considered
+<v-click>
+TamiFlex does not distinguish between these two classes
 
-This causes conflict in the Play-in agent
+Only the most recently observed class is retained
 
+This causes conflicts in the Play-in agent
+
+</v-click>
 
 ::right::
 
-<img src="/identical-classname.png" class="w-100 mx-auto"/>
+<img v-click src="/identical-classname.png" class="w-100 mx-auto"/>
 
 <style>
 .two-cols-header {
@@ -753,26 +758,44 @@ layout: two-cols-header
 
 ##
 ::left::
-On DaCapo 23.11-MR2-chopin benchmark suite
 
-Java 21: OpenJDK & OpenJ9
+<v-click>
 
-Static analyzer: Soot
+**Benchmark suite:**
+DaCapo 23.11-MR2-chopin
 
+**Java versions:**
+OpenJDK 21 · OpenJ9 21
+
+**Static analyzer:**
+Soot
+
+</v-click>
+
+<v-click>
 
 ### Methodology
 
 For all 22 benchmarks:
 
-1. Generate reflection log + class dump (Play-out)
+1. Generate reflection log and class dump with Play-out
 2. Build call graph with Soot
-3. Re-insert dumped classes (Play-in)
+3. Re-insert dumped classes with Play-in
+
+
+</v-click>
 
 ::right::
 
-<img src="/tamiflex-plot1.png"
+<img v-click src="/tamiflex-plot1.png"
      class="w-100 mx-auto"
      style="transform: scale(1.3);"/>
+
+<style>
+.two-cols-header {
+  column-gap: 50px; /* Adjust the gap size as needed */
+}
+</style>
 
 ---
 layout: two-cols-header
@@ -783,23 +806,32 @@ layout: two-cols-header
 ##
 ::left::
 
+<v-click>
 Compared Soot-generated call graphs with dynamic call graphs
 
-Ideally no dynamic call graph edge must be missed by the static call graph
+Ideally, every dynamic call graph edge should also appear in the static call graph
 
-But some edges can be missed, they are not relevant
+</v-click>
+
+<v-click>
+Some missing edges are expected and not relevant to this evaluation:
 
 - Related to JVM mechanisms (`loadClass`)
 - Reflective method edges
-- Many more
+- And more
 
-Even after removing these, some edges are still missing
+</v-click>
 
-Can be used to improve the callgraph algorithms
+<v-click>
+<br>
+After excluding these cases, some edges are still missing
+
+Potential opportunities to improve call graph algorithms
+</v-click>
 
 ::right::
 
-<img src="/correctness.png"
+<img v-click src="/correctness.png"
      class="w-100 mx-auto"
      style="transform: scale(1.1);"/>
 
@@ -821,12 +853,12 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 
 <!-- Compare Original TamiFlex+Soot (Base) with Updated TamiFlex+Soot (Newly enabled) on DaCapo 23.11-MR1-chopin -->
 ::left::
-<img src="/stack-allocation1.png"
+<img v-click src="/stack-allocation1.png"
      class="w-100 mx-auto"
      style="transform: translateY(-20px);"/>
 
 ::right::
-<img src="/stack-allocation2.png"
+<img v-click src="/stack-allocation2.png"
      class="w-100 mx-auto"
      style="transform: scale(1.0);transform: translateY(-20px);"/>
 
@@ -838,9 +870,38 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 <img src="/vmil_paper.drawio.svg" class="w-150 mx-auto"/>
 <br>
 
+# Upstreaming
+
+## We are in the process of merging our pull request into TamiFlex
+<br>
+
+## The original authors welcomed our contributions and plan to include them in a future release
+
+---
+layout: two-cols-header
+---
+
 # Conclusion
 ## Brings reflection-aware static analysis to the modern Java ecosystem
 
 <br>
 
 # Thank you
+
+::left::
+
+<br>
+<br>
+<br>
+<img src="/plato.png" class="w-120 mx-auto"/>
+
+<br>
+<br>
+<br>
+
+::right::
+
+<br>
+<img src="/iitb_logo.png" class="w-50 mx-auto" />
+
+<br>
