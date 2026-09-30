@@ -949,28 +949,22 @@ layout: two-cols-header
 ##
 ::left::
 
-<v-click>
 Compared Soot-generated call graphs with dynamic call graphs
 
 Ideally, every dynamic call graph edge should also appear in the static call graph
 
-</v-click>
 
-<v-click>
 Some missing edges are expected and not relevant to this evaluation:
 
 - Related to JVM mechanisms (`loadClass`)
 - Reflective method edges
 - And more
 
-</v-click>
 
-<v-click>
 <br>
 After excluding these cases, some edges are still missing
 
 Potential opportunities to improve call graph algorithms
-</v-click>
 
 ::right::
 
