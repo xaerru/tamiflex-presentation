@@ -253,44 +253,21 @@ flowchart TD
 
 # TamiFlex Architecture
 
-<img src="/tamiflex_architecture.png" class="w-200 mx-auto"/>
+<div class="relative w-full h-100 flex items-center justify-center">
 
-<Arrow
-  v-click="[1, 2]"
-  x1="50"
-  y1="175"
-  x2="115"
-  y2="175"
-  color="#F97316"
-/>
+<v-switch>
+  <template #1>
+    <img src="/simple_arch1.drawio.svg" class="object-contain">
+  </template>
+  <template #2>
+    <img src="/simple_arch2.drawio.svg" class="object-contain">
+  </template>
+  <template #3>
+    <img src="/simple_arch3.drawio.svg" class="object-contain">
+  </template>
+</v-switch>
 
-<Arrow
-  v-click="[2, 3]"
-  x1="70"
-  y1="350"
-  x2="137"
-  y2="350"
-  color="#F97316"
-/>
-
-<Arrow
-  v-click="[3, 4]"
-  x1="515"
-  y1="550"
-  x2="515"
-  y2="505"
-  color="#F97316"
-/>
-
-<Arrow
-  v-click="[4, 5]"
-  x1="575"
-  y1="350"
-  x2="645"
-  y2="350"
-  color="#F97316"
-/>
-
+</div>
 
 <SlideNumber />
 
