@@ -19,7 +19,7 @@ layout: default
 
 <br>
 
-**Gauravsingh Sisodia**¹, Poorna Teja Pasala², Aditya Anand², and **Manas Thakur**²
+**Gauravsingh Sisodia**¹, Poorna Teja Pasala², **Aditya Anand**², and **Manas Thakur**²
 <br>
 
 ¹ Sardar Patel Institute of Technology  
@@ -939,6 +939,8 @@ layout: two-cols-header
 <img src="/iitb_logo.png" class="w-50 mx-auto" />
 
 <br>
+
+<SlideNumber />
 
 ---
 layout: two-cols-header
