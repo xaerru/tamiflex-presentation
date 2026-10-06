@@ -1,37 +1,32 @@
 ---
 theme: seriph
-title: Modern Java Static Analysis in the Presence of Reflection
+title: "Beyond Java 6: Reviving Reflection-Aware Static Analysis for Modern JVMs"
 info: |
-  IICT 2026
-  Modern Java Static Analysis in the Presence of Reflection
+    Beyond Java 6: Reviving Reflection-Aware Static Analysis for Modern JVMs
 class: text-center
 drawings:
   persist: false
 transition: slide-left
 comark: true
-duration: 15min
+duration: 25min
 layout: default
 ---
 
-<h1 style="font-size: 3.5rem; line-height: 1.1;">
-  Modern Java Static Analysis in the Presence of Reflection
+<h1 style="font-size: 3rem; line-height: 1.1;">
+  Beyond Java 6: <br> Reviving Reflection-Aware Static Analysis for Modern JVMs
 </h1>
 
 <br>
 
-**Gauravsingh Sisodia**¹, Poorna Teja Pasala², **Aditya Anand**², and **Manas Thakur**²
+Gauravsingh Sisodia¹, **Poorna Teja Pasala**², Aditya Anand², and **Manas Thakur**²
 <br>
 
 ¹ Sardar Patel Institute of Technology  
 ² Indian Institute of Technology Bombay
 
 
-<img src="/iict-logo.png" class="w-30 mx-auto"/>
-IICT
+<img src="/splash_logo.png" class="w-80 mx-auto"/>
 
-2 October 2026
-
-Indian Institute of Science (IISc), Bengaluru
 
 ---
 layout: two-cols-header
@@ -309,60 +304,60 @@ flowchart TD
 
 <SlideNumber />
 
-<!-- --- -->
-<!-- layout: two-cols-header -->
-<!-- --- -->
-<!---->
-<!-- # Updating ASM -->
-<!---->
-<!-- ## ASM - Bytecode manipulation and analysis framework -->
-<!---->
-<!-- Used for modifying bytecode in `transform()` -->
-<!---->
-<!-- Provides APIs to parse class files and insert instructions -->
-<!---->
-<!-- <br> -->
-<!---->
-<!-- ::left:: -->
-<!---->
-<!-- <v-click> -->
-<!---->
-<!-- ### What changed? -->
-<!---->
-<!-- - TamiFlex used ASM 3.2 (Java 7) -->
-<!---->
-<!-- - Updated ASM to 9.9.1 (Java 26) -->
-<!---->
-<!-- - Migrated from deprecated `ClassAdapter` and `MethodAdapter` to `ClassVisitor` and `MethodVisitor` -->
-<!---->
-<!---->
-<!-- </v-click> -->
-<!---->
-<!-- ::right:: -->
-<!---->
-<!-- <v-click> -->
-<!---->
-<!-- ### Example usage: -->
-<!---->
-<!-- ```java -->
-<!-- ClassReader cr = new ClassReader(bytes); -->
-<!-- ClassWriter cw = new ClassWriter(cr, 0); -->
-<!---->
-<!-- cr.accept(new MyClassVisitor(cw), 0); -->
-<!---->
-<!-- return cw.toByteArray(); -->
-<!-- ``` -->
-<!---->
-<!---->
-<!-- </v-click> -->
-<!---->
-<!-- <style> -->
-<!-- .two-cols-header { -->
-<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
-<!-- } -->
-<!-- </style> -->
-<!---->
-<!-- <SlideNumber /> -->
+---
+layout: two-cols-header
+---
+
+# Updating ASM
+
+## ASM - Bytecode manipulation and analysis framework
+
+Used for modifying bytecode in `transform()`
+
+Provides APIs to parse class files and insert instructions
+
+<br>
+
+::left::
+
+<v-click>
+
+### What changed?
+
+- TamiFlex used ASM 3.2 (Java 7)
+
+- Updated ASM to 9.9.1 (Java 26)
+
+- Migrated from deprecated `ClassAdapter` and `MethodAdapter` to `ClassVisitor` and `MethodVisitor`
+
+
+</v-click>
+
+::right::
+
+<v-click>
+
+### Example usage:
+
+```java
+ClassReader cr = new ClassReader(bytes);
+ClassWriter cw = new ClassWriter(cr, 0);
+
+cr.accept(new MyClassVisitor(cw), 0);
+
+return cw.toByteArray();
+```
+
+
+</v-click>
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+<SlideNumber />
 
 ---
 layout: two-cols-header
@@ -582,118 +577,9 @@ What about the reflection log?
 
 <SlideNumber />
 
-<!-- --- -->
-<!-- layout: two-cols-header -->
-<!-- --- -->
-<!---->
-<!-- # Non-deterministic bytecode -->
-<!---->
-<!-- ## -->
-<!-- Sometimes runtime-generated classes might have different bytecode on each run -->
-<!---->
-<!-- ::left:: -->
-<!---->
-<!-- ### Why? -->
-<!---->
-<!-- Proxy classes rely on `Class.getMethods()` to generate classes -->
-<!---->
-<!-- This method does not guarantee a deterministic return order -->
-<!---->
-<!-- ```java -->
-<!--          Run 1            |           Run 2 -->
-<!--    Class.getMethods()     |     Class.getMethods() -->
-<!--                           | -->
-<!--       [ foo() ]           |         [ bar() ] -->
-<!--       [ bar() ]           |         [ baz() ] -->
-<!--       [ baz() ]           |         [ foo() ] -->
-<!--           ↓               |             ↓ -->
-<!--    Generated Class A      |     Generated Class A -->
-<!--    0: call foo()          |     0: call bar() -->
-<!--    1: call bar()          |     1: call baz() -->
-<!--    2: call baz()          |     2: call foo() -->
-<!-- ``` -->
-<!---->
-<!-- ::right:: -->
-<!---->
-<!-- ### The Fix -->
-<!---->
-<!-- Instrument `Class.getMethods()` to sort the `Method[]` before returning -->
-<!---->
-<!-- Algorithm: -->
-<!---->
-<!-- ```java -->
-<!-- Arrays.sort(methods, -->
-<!--     Comparator.comparing( -->
-<!--         m -> m.getName() -->
-<!--            + descriptor(m) -->
-<!--            + m.getDeclaringClass().getName() -->
-<!-- )); -->
-<!-- ``` -->
-<!---->
-<!---->
-<!-- <style> -->
-<!-- .two-cols-header { -->
-<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
-<!-- } -->
-<!-- </style> -->
-<!---->
-<!-- --- -->
-<!-- layout: two-cols-header -->
-<!-- --- -->
-<!---->
-<!-- # Non-deterministic bytecode -->
-<!---->
-<!-- ## -->
-<!-- Sometimes runtime-generated classes might have different bytecode on each run -->
-<!---->
-<!-- ::left:: -->
-<!---->
-<!-- ### Why? -->
-<!---->
-<!-- ByteBuddy - a runtime code generation library -->
-<!---->
-<!-- Creates classes with randomized field names -->
-<!---->
-<!-- <div class="mt-4.8"> -->
-<!---->
-<!-- ```java -->
-<!-- // Run 1: -->
-<!--   private static final Method cachedValue$i9OL22LY$09i0gv1; -->
-<!---->
-<!-- // Run 2: -->
-<!--   private static final Method cachedValue$oWiemhl0$09i0gv1; -->
-<!-- ``` -->
-<!---->
-<!-- </div> -->
-<!---->
-<!-- <Arrow two-way=true width=1 x1="385" y1="310" x2="385" y2="345" /> -->
-<!---->
-<!-- ::right:: -->
-<!---->
-<!-- ### The Fix -->
-<!---->
-<!-- Instrument ByteBuddy's `RandomString` class -->
-<!---->
-<!-- Modify it to return a constant string - `"TAMIFLEX"` -->
-<!---->
-<!-- ```java -->
-<!-- // Run 1: -->
-<!--   private static final Method cachedValue$TAMIFLEX$09i0gv1; -->
-<!---->
-<!-- // Run 2: -->
-<!--   private static final Method cachedValue$TAMIFLEX$09i0gv1; -->
-<!-- ``` -->
-<!---->
-<!-- <Arrow two-way=true width=1 x1="850" y1="310" x2="850" y2="345" /> -->
-<!---->
-<!-- <style> -->
-<!-- .two-cols-header { -->
-<!--   column-gap: 20px; /* Adjust the gap size as needed */ -->
-<!-- } -->
-<!-- </style> -->
-
 ---
 layout: two-cols-header
+transition: fade
 ---
 
 # Non-deterministic bytecode
@@ -718,8 +604,6 @@ Run 1:    ConstantPool [A, B, C]
 Run 2:    ConstantPool [B, A, C]
           Methods [bar, foo]
 ```
-
-<br>
 
 
 </v-click>
@@ -769,15 +653,74 @@ Run 2:    ConstantPool [B, A, C]
 <SlideNumber />
 
 ---
+layout: two-cols-header
+---
 
-# Additional Contributions
+# Non-deterministic bytecode
 
 ##
-- Updated ASM version for compatibility till Java 26
-- Scoped class dump directory with class loader name
-- Added support for resolving default interface methods
-- OpenJDK specific fixes
+Sometimes runtime-generated classes might have different bytecode on each run
 
+::left::
+
+### Why?
+
+ByteBuddy - a runtime code generation library
+
+Creates classes with randomized field names
+
+<div v-click class="mt-4.8">
+
+```java
+// Run 1:
+  private static final Method cachedValue$i9OL22LY$09i0gv1;
+
+// Run 2:
+  private static final Method cachedValue$oWiemhl0$09i0gv1;
+```
+
+</div>
+
+<Arrow v-after two-way=true width=1 x1="385" y1="310" x2="385" y2="345" />
+
+::right::
+<v-click>
+
+### The Fix
+
+Instrument ByteBuddy's `RandomString` class
+
+Modify it to return a constant string - `"TAMIFLEX"`
+
+```java
+// Run 1:
+  private static final Method cachedValue$TAMIFLEX$09i0gv1;
+
+// Run 2:
+  private static final Method cachedValue$TAMIFLEX$09i0gv1;
+```
+
+<Arrow two-way=true width=1 x1="850" y1="310" x2="850" y2="345" />
+
+</v-click>
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+<SlideNumber />
+
+---
+layout: two-cols-header
+---
+
+
+# Classes with identical names
+
+##
+Multiple classes can share a name if loaded by different class loaders
 
 ::left::
 
@@ -809,7 +752,7 @@ This causes conflicts in the Play-in agent
 
 ::right::
 
-<img v-click src="/identical-classname.png" class="w-100 mx-auto"/>
+<img v-click src="/identical-classname.png" class="w-90 mx-auto"/>
 
 <style>
 .two-cols-header {
@@ -871,6 +814,49 @@ For all 22 benchmarks:
 layout: two-cols-header
 ---
 
+# Call graph Correctness
+
+##
+::left::
+<v-click>
+Compared Soot-generated call graphs with dynamic call graphs
+
+Ideally, every dynamic call graph edge should also appear in the static call graph
+</v-click>
+
+<v-click>
+Some missing edges are expected and not relevant to this evaluation:
+
+- Related to JVM mechanisms (`loadClass`)
+- Reflective method edges
+- And more
+</v-click>
+
+<br>
+<v-click>
+After excluding these, some edges are still missing
+
+Potential opportunities to improve call graph algorithms
+</v-click>
+
+::right::
+
+<img v-click src="/correctness.png"
+     class="w-100 mx-auto"
+     style="transform: scale(1.1);"/>
+
+<style>
+.two-cols-header {
+  column-gap: 30px; /* Adjust the gap size as needed */
+}
+</style>
+
+<SlideNumber />
+
+---
+layout: two-cols-header
+---
+
 
 # Improvements in Static Analysis
 
@@ -893,22 +879,13 @@ Reproduced escape analysis from Anand et al. (PLDI 2024) using our updated TamiF
 
 ---
 
-# Publication
-
-<img src="/vmil_paper.drawio.svg" class="w-150 mx-auto"/>
-<br>
-
-<v-click>
-
 # Upstreaming
 
-- We are in the process of merging our pull request into TamiFlex
+- Our work has been merged into TamiFlex
 <br>
 
-- TamiFlex authors (Bodden et al.) welcomed our contributions and plan to include them in a future release
+- Working with the TamiFlex authors (Bodden et al.) to do a release soon
 
-
-</v-click>
 <SlideNumber />
 
 ---
@@ -941,44 +918,3 @@ layout: two-cols-header
 <br>
 
 <SlideNumber />
-
----
-layout: two-cols-header
----
-
-# Call graph Correctness
-
-##
-::left::
-
-Compared Soot-generated call graphs with dynamic call graphs
-
-Ideally, every dynamic call graph edge should also appear in the static call graph
-
-
-Some missing edges are expected and not relevant to this evaluation:
-
-- Related to JVM mechanisms (`loadClass`)
-- Reflective method edges
-- And more
-
-
-<br>
-After excluding these cases, some edges are still missing
-
-Potential opportunities to improve call graph algorithms
-
-::right::
-
-<img v-click src="/correctness.png"
-     class="w-100 mx-auto"
-     style="transform: scale(1.1);"/>
-
-<style>
-.two-cols-header {
-  column-gap: 30px; /* Adjust the gap size as needed */
-}
-</style>
-
-<SlideNumber />
-
